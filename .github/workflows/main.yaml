@@ -1,0 +1,99 @@
+# name: NodeJS Project APP
+
+# on:
+#   push:
+#     branches:
+#       - main
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v4
+
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: '18.20.0'
+      
+#       - name: Install Dependencies
+#         run: |
+#           cd arduino/
+#           npm install
+#           npm install pm2 -g
+
+#       - name: Run App with PM2
+#         run: |
+#           cd arduino/
+#           pm2 start app.js --name "arduino-app" 
+#           pm2 save
+
+#       - name: Stop App with pm2
+#         run: |
+#           pm2 stop "arduino-app"
+#           pm2 delete "arduino-app"
+
+#       # - name: Keep PM2 alive
+#       #   run: |
+#       #     pm2 list
+#       #     sleep infinity
+
+name: Arduino Node.js App CI/CD
+
+on:
+  push:
+    branches:
+      - main # main 브랜치에 푸시될 때 워크플로우 실행
+
+jobs:
+  build-and-test: # 'deploy' 대신 'build-and-test'로 Job 이름 변경 (목적 명확화)
+    runs-on: ubuntu-latest # 최신 Ubuntu 환경에서 실행
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4 # 레포지토리 코드 가져오기
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.20.0' # Node.js 18.20.0 버전 사용
+
+      - name: Install Dependencies
+        run: |
+          # app.js, public, routes 폴더가 모두 arduino/ 아래에 있으므로
+          # arduino/ 디렉토리로 이동하여 npm install 실행
+          cd arduino/
+          npm install # package.json에 정의된 의존성 설치
+          # pm2는 테스트 환경에서 지속적인 실행이 필요 없다면 전역 설치할 필요 없음
+          # 만약 PM2로 앱을 실행하고 테스트를 진행할 것이라면 설치 유지:
+          # npm install pm2 -g 
+
+      - name: Run App (for testing/validation)
+        run: |
+          cd arduino/ # 다시 arduino/ 디렉토리로 이동
+          # pm2 대신 node 직접 실행 (간단한 테스트 목적)
+          # 또는 pm2를 설치했다면 pm2로 실행
+          node app.js & # 백그라운드로 앱 실행 (Job이 끝나면 같이 종료됨)
+          # 또는 pm2로 실행 (PM2 설치되어 있다면)
+          # pm2 start app.js --name "arduino-test-app"
+          
+          # 앱이 시작될 시간을 잠시 대기 (선택 사항, 앱이 바로 시작되는 경우 불필요)
+          sleep 5 
+
+          # 여기서 앱이 정상적으로 실행되는지 확인하는 테스트 스크립트 추가 가능
+          # 예: curl http://localhost:3000/ 또는 Jest/Mocha 테스트 실행
+          # curl -s http://localhost:3000/ # 앱이 3000 포트에서 실행된다고 가정
+
+          # 앱 실행 후 바로 종료하거나, Job이 끝나면 자연스럽게 종료됨
+          # pm2를 사용했다면 pm2 stop/delete도 이어서 진행할 수 있으나, Job 종료 시 VM이 사라지므로 필수 아님
+          # pm2 stop "arduino-test-app" || true # 테스트 후 정리 (선택 사항)
+          # pm2 delete "arduino-test-app" || true # 테스트 후 정리 (선택 사항)
+
+      # - name: Run Tests (만약 테스트 코드가 있다면)
+      #   run: |
+      #     cd arduino/
+      #     npm test # package.json에 정의된 테스트 스크립트 실행
+
+
+      # 추후에 AWS 배포

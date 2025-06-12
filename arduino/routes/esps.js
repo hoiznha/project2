@@ -14,10 +14,11 @@ app.use(bodyParser.urlencoded({extended : false}));
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
 
-mongoose.connect("mongodb://13.125.242.239:27017/sensordb", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+// 중복작성으로 오류발생!
+// mongoose.connect("mongodb://13.125.242.239:27017/sensordb", {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// })
 
 // simple api
 app.get("/Hello", (req, res) => {

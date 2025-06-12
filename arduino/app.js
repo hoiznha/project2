@@ -1,4 +1,6 @@
 //app.js
+require('dotenv').config();
+
 const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
@@ -29,10 +31,17 @@ app.listen(app.get('port'),'0.0.0.0', () =>{
 });
 
 // MongoDB connection
-mongoose.connect("mongodb://13.125.242.239:27017/sensordb", {
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/sensordb";
+mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+
+// // MongoDB connection
+// mongoose.connect("mongodb://13.125.242.239:27017/sensordb", {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// });
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB 연결 오류:"));

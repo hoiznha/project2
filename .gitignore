@@ -3,7 +3,7 @@
 
 ## nodejs
 node/**/node_modules/
-node/**/package-lock.json
+# node/**/package-lock.json
 node/**/.serverless */
 
 ## python
@@ -27,8 +27,9 @@ mongodb/backup
 ##docker
 docker/mysql/mysql*
 docker/mongodb/mongo*
+docker/**/*.json
 
 ##react
 **/node_modules/
 
-**/*.json
+# **/*.json

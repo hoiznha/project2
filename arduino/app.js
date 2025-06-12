@@ -6,6 +6,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const router = express.Router();
+const mongoose = require("mongoose");
 
 
 // view engine setup
@@ -25,4 +26,16 @@ app.use('/', esps);
 
 app.listen(app.get('port'),'0.0.0.0', () =>{
 	console.log('3000 Port : 서버 실행 중')
+});
+
+// MongoDB connection
+mongoose.connect("mongodb://13.125.242.239:27017/sensordb", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "MongoDB 연결 오류:"));
+db.once("open", () => {
+  console.log("✅ MongoDB 연결 성공");
 });

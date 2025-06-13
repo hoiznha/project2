@@ -17,6 +17,6 @@ ps:
 img:
 	docker images
 rm:
-	docker rm -f $$(docker ps -aq)
+	docker rm -f $(docker ps -aq)
 rmi:
-	docker rmi -f $$(docker images -q)
+	docker rmi -f $(docker images -q)

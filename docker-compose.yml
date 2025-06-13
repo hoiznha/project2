@@ -11,6 +11,7 @@ services:
       - mongodb_data:/data/db
     networks:
       - backend
+    command: ["--bind_ip_all"]
 
   nodeapp:
     build:
@@ -19,7 +20,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - ./arduino/.env
+      - ./.env
     environment:
       - MONGO_URI=mongodb://mongodb:27017/sensordb
     volumes:

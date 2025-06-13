@@ -1,7 +1,7 @@
 FROM node:18.20.0
 
 WORKDIR /usr/src/app
-COPY arduino/package*.json ./
+COPY package*.json ./
 
 RUN npm install
 

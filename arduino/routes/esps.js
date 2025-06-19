@@ -26,56 +26,51 @@ app.get("/Hello", (req, res) => {
 });
 
 // post, request body, response O
-app.get("/get-sensor", async (req, res) => {
-  const light = parseInt(req.query.light);
-  if (isNaN(light)) {
-    return res.status(400).send("잘못된 센서 값입니다");
-  }
+// app.get("/get-sensor", async (req, res) => {
+//   const light = parseInt(req.query.light);
+//   if (isNaN(light)) {
+//     return res.status(400).send("잘못된 센서 값입니다");
+//   }
 
+//   try {
+//     const newSensor = new Sensor({ light });
+//     await newSensor.save();
+//     console.log("저장된 값:", light);
+//     res.json({ ok: "get", value: light });
+//   } catch (err) {
+//     console.error("저장 실패:", err);
+//     res.status(500).send("서버 오류");
+//   }
+// });
+
+app.get('/cds-value', async (req, res) => {
   try {
-    const newSensor = new Sensor({ light });
-    await newSensor.save();
-    console.log("저장된 값:", light);
-    res.json({ ok: "get", value: light });
-  } catch (err) {
-    console.error("저장 실패:", err);
-    res.status(500).send("서버 오류");
+    const { myvalue, type } = req.query;
+
+    if (!myvalue || isNaN(myvalue)) {
+      return res.status(400).send('Invalid or missing lux value');
+    }
+
+    if (!type) {
+      return res.status(400).send('Missing sensor type');
+    }
+
+    const sensorData = new Sensor({
+      lux: Number(myvalue),
+      sensorType: cds, //cds-value 값을 URL 처리
+    });
+
+    await sensorData.save();
+
+    res.status(200).send(`✅ Lux value received: ${myvalue} from sensor: ${type}`);
+  } catch (error) {
+    console.error('❌ Error saving sensor data:', error);
+    res.status(500).send('Internal server error');
   }
 });
 
 app.listen(3000, () => {
   console.log("서버가 3000번 포트에서 실행 중입니다.");
 });
-
-
-// // NodeMCU에서 센서값 전달 (GET 방식)
-// app.get('/get-sensor', (req, res) => {
-//   const light = req.query.light;
-//   if (light) {
-//     latestLight = {
-//       value: light,
-//     };
-//     console.log('value :', latestLight);
-//   } else {
-//     res.status(400).send('Missing light parameter');
-//   }
-// });
-
-// // 외부에서 최근 센서값 조회
-// app.get('/latest-light', (req, res) => {
-//   if (latestLight) {
-//     res.json({ok:"get", value : latestLight});
-//   } else {
-//     res.status(404).json({ message: 'No data yet' });
-//   }
-// });
-
-
-// post, request body, response O
-// app.post("/post-sensor", (req, res) => {
-//   const { sensor_number, value } = req.body;
-//   console.log("sensor_number : "+sensor_number+" / value : "+value);
-//   res.json({ok:"post", sensor_number:sensor_number, value : value});
-// })
 
 module.exports = app;

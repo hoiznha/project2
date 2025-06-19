@@ -26,16 +26,22 @@ from langchain.chains import LLMChain
 prompt = PromptTemplate(
     input_variables = ["data"],
     template = """ 
-    다음은 지난 6월 1주일동안의 평균 조도데이터를 1시간 간격으로 나타낸 데이터입니다.
-    {data}
-    이 데이터는 시간에 따라 조도가 어떻게 변화하는지 보여줍니다. 
-    이 패턴을 반영해서,  내일의 1시간 단위 조도를 예측해 주세요.
+You are a weather and environmental data expert.  
+Using your knowledge of historical environmental patterns and publicly available datasets (such as multi-year light intensity data from meteorological or scientific institutions),  
+please analyze the following 1-week light intensity (lux) data measured hourly and forecast tomorrow’s hourly lux values.
+
+Here is the 1-week sensor data (hourly average values for each day):
+
+{data}
+
+Considering the typical seasonal and time patterns observed in June over the past five years, please predict the lighting data for the week beginning June 20 in format by date and time.
 """)
 
 chain = LLMChain(
     llm=OpenAI(
         model='gpt-3.5-turbo-instruct',
         temperature=0,
+        max_tokens=3650,
     ),
     prompt=prompt
 )

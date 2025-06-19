@@ -30,20 +30,21 @@ app.listen(app.get('port'),'0.0.0.0', () =>{
 });
 
 // MongoDB connection
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/sensordb";
-mongoose.connect(MONGO_URI, {
+mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+}).then(() => {
+  console.log('✅ MongoDB Connected');
+  app.listen(process.env.PORT || 3000, () => {
+    console.log(`🚀 Server is running on port ${process.env.PORT || 3000}`);
+  });
+}).catch(err => {
+  console.error('❌ MongoDB Connection Error:', err);
 });
+
 
 // // MongoDB connection
 // mongoose.connect("mongodb://13.125.242.239:27017/sensordb", {
 //   useNewUrlParser: true,
 //   useUnifiedTopology: true,
 // });
-
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "MongoDB 연결 오류:"));
-db.once("open", () => {
-  console.log("✅ MongoDB 연결 성공");
-});

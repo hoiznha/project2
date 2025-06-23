@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
 env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
@@ -35,7 +36,7 @@ jobs:
           file: ./arduino/Dockerfile
           push: true
           tags: ${{ env.APP_DOCKER_IMAGE_NAME }}:latest
-      
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
@@ -46,11 +47,29 @@ jobs:
           script: |
             echo "--- Pulling Latest App Image ---"
             docker pull ${{ env.APP_DOCKER_IMAGE_NAME }}:latest
+
             echo "--- Stopping and Removing Old App Container ---"
             docker stop restful_app || true
             docker rm restful_app || true
+
+            echo "--- Stopping and Removing Old MongoDB Container ---"
+            docker stop mongo-container || true
+            docker rm mongo-container || true
+
+            echo "--- Running MongoDB Container ---"
+            docker run -d --restart always \
+              --name mongo-container \
+              -p 27017:27017 \
+              -v mongodb_data:/data/db \
+              mongo:6.0 \
+              --bind_ip_all
+
             echo "--- Running New App Container ---"
-            docker run -d --restart always --name restful_app -p
-            3000:3000 ${{ env.APP_DOCKER_IMAGE_NAME }}:latest
+            docker run -d --restart always \
+              --name restful_app \
+              -p 3000:3000 \
+              -e MONGO_URI=mongodb://mongo-container:27017/sensordb \
+              ${{ env.APP_DOCKER_IMAGE_NAME }}:latest
+
             echo "--- Cleaning up unused Docker images ---"
             docker system prune -f

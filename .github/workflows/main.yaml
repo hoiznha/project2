@@ -46,16 +46,18 @@ jobs:
           key: ${{ env.EC2_KEY }}
           port: ${{ secrets.PORT }}
           script: |
+
+
             echo "--- Pulling latest image in Kubernetes Deployment ---"
 
             # 1. 이미지 태그 업데이트 (선택)
             # 또는 deployment.yaml에 imagePullPolicy: Always 설정
 
             # 2. apply 배포파일
-            kubectl apply -f ./arduino/k8s/mongo-deployment.yaml
-            kubectl apply -f ./arduino/k8s/node-deployment.yaml
-            kubectl apply -f ./arduino/k8s/mongo-service.yaml
-            kubectl apply -f ./arduino/k8s/node-service.yaml
+            kubectl apply -f /work/project2/k8s/mongo-deployment.yaml
+            kubectl apply -f /work/project2/k8s/node-deployment.yaml
+            kubectl apply -f /work/project2/k8s/mongo-service.yaml
+            kubectl apply -f /work/project2/k8s/node-service.yaml
 
             # 3. rollout 재시작으로 새 이미지 적용
             kubectl rollout restart deployment/${{ env.K8S_DEPLOYMENT_NAME }} -n ${{ env.K8S_NAMESPACE }}

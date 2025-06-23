@@ -15,6 +15,9 @@ env:
   EC2_USERNAME: ${{ secrets.USERNAME }}
   EC2_KEY: ${{ secrets.KEY }}
 
+  K8S_DEPLOYMENT_NAME: node-deployment
+  K8S_NAMESPACE: default
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest

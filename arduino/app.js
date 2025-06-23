@@ -34,7 +34,7 @@ mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => {
-  console.log('✅ MongoDB Connected');
+  console.log('✅ MongoDB Connected!');
   app.listen(process.env.PORT || 3000, () => {
     console.log(`🚀 Server is running on port ${process.env.PORT || 3000}`);
   });

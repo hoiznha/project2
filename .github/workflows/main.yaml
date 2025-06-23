@@ -52,8 +52,9 @@ jobs:
             # 또는 deployment.yaml에 imagePullPolicy: Always 설정
 
             # 2. apply 배포파일
-            kubectl apply -f /home/ec2-user/app/deployment.yaml
-            kubectl apply -f /home/ec2-user/app/service.yaml
+            kubectl apply -f ./k8s/mongo-deployment.yaml
+            kubectl apply -f ./k8s/node-deployment.yaml
+            kubectl apply -f ./k8s/node-service.yaml
 
             # 3. rollout 재시작으로 새 이미지 적용
             kubectl rollout restart deployment/${{ env.K8S_DEPLOYMENT_NAME }} -n ${{ env.K8S_NAMESPACE }}

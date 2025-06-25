@@ -24,7 +24,7 @@ spec:
       volumes:
         - name: mongo-volume
           emptyDir: {}  # 실제 운영이라면 PVC(PersistentVolumeClaim)로 교체
-
+#mongo-service.yaml
 ---
 apiVersion: v1
 kind: Service

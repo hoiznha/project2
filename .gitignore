@@ -31,5 +31,7 @@ docker/**/*.json
 
 ##react
 **/node_modules/
+frontend
 
 # **/*.json
+

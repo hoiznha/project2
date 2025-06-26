@@ -1,8 +1,8 @@
 // 필요한 모듈들을 임포트합니다.
 const express = require('express');
 const router = express.Router(); // Express 라우터 인스턴스를 생성합니다.
-const Sensor = require("./sensor"); // 같은 디렉토리에 있는 sensor.js의 Sensor 모델을 가져옵니다.
-
+const preSensor = require("../models/predictSensor");
+const liveSensor = require("../models/liveSensor");
 // ★ 중요: CORS 및 Body-Parser 미들웨어는 app.js에서 전역적으로 설정했으므로
 // 이곳에서는 별도로 임포트하거나 router.use() 할 필요가 없습니다.
 
@@ -11,45 +11,120 @@ const Sensor = require("./sensor"); // 같은 디렉토리에 있는 sensor.js�
 // 1. 센서 데이터를 수신하고 MongoDB에 저장하는 GET API
 // NodeMCU에서 HTTP GET 요청으로 이 경로를 사용합니다.
 // 예시: http://13.125.242.239:3000/get-sensor?light=500
-router.get("/get-sensor", async (req, res) => {
+// router.get("/get-sensor", async (req, res) => {
+//   try {
+//     const lightValue = parseInt(req.query.myvalue);
+
+//     console.log(req.query);
+    
+//     if (!lightValue || isNaN(lightValue)) {
+//       console.log("❌ 잘못된 센서값:", lightValue);
+//       return res.status(400).send("Invalid light value");
+//     }
+    
+//     const now = new Date();
+//     const isOnTheHour = now.getMinutes() === 0 && now.getSeconds() === 0;
+
+//     if (!isOnTheHour) {
+//       console.log("🕒 정각이 아님 - 저장 생략:", now.toISOString());
+//       return res.status(200).send("Not on the hour - data not saved");
+//     }
+
+//     // 정각이면 저장
+//     const newSensor = new Sensor({
+//       lux: lightValue,
+//       timestamp: now,
+//     });
+
+//     await newSensor.save();
+//     console.log("✅ 정각에 저장 성공:", newSensor);
+//     res.status(200).send(`Saved lux value ${lightValue} at the hour`);
+
+//   } catch (error) {
+//     console.error("❌ 저장 중 오류:", error);
+//     res.status(500).send("Internal server error");
+//   }
+// });
+
+// 30분~1시간 정각에 측정되는값을 저장.
+// router.get("/get-sensor", async (req, res) => {
+//   try {
+//     const lightValue = parseInt(req.query.myvalue);
+
+//     if (!lightValue || isNaN(lightValue)) {
+//       console.log("❌ 잘못된 센서값:", lightValue);
+//       return res.status(400).send("Invalid light value");
+//     }
+
+//     const now = new Date();
+//     const minutes = now.getMinutes();
+//     const seconds = now.getSeconds();
+
+//     // 매 시각 00분 또는 30분, 초는 0~2초 사이일 때만 저장
+//     const isOnThe30MinMark = (minutes === 0 || minutes === 30) && seconds <= 2;
+
+//     if (!isOnThe30MinMark) {
+//       console.log("⏳ 00분 또는 30분이 아님 - 저장 생략:", now.toISOString());
+//       return res.status(200).send("Not 00 or 30 minute mark - data not saved");
+//     }
+
+//     // 저장
+//     const newSensor = new liveSensor({
+//       lux: lightValue,
+//       timestamp: now,
+//     });
+
+//     await newSensor.save();
+//     console.log("✅ 30분 간격 저장 성공:", newSensor);
+//     res.status(200).send(`Saved lux value ${lightValue} at ${now.toISOString()}`);
+
+//   } catch (error) {
+//     console.error("❌ 저장 중 오류:", error);
+//     res.status(500).send("Internal server error");
+//   }
+// });
+
+router.get("/lux-history", async (req, res) => {
   try {
-    // URL 쿼리 파라미터에서 'light' 값을 추출합니다. (NodeMCU에서 보내는 값)
-    const lightValue = parseInt(req.query.myvalue);
-    // NodeMCU에서 'type' 파라미터를 보내지 않으므로 'cds'로 고정합니다.
-    // const sensorType = 'cds';
+    // liveSensor 모델에서 데이터 전체 조회, 최신순 정렬
+    const data = await liveSensor.find().sort({ timestamp: -1 });
 
-    // 'lightValue'가 없거나 숫자가 아니면 400 Bad Request 응답을 보냅니다.
-    if (!lightValue || isNaN(lightValue)) {
-      console.log("❌ 유효하지 않거나 누락된 'light' 센서 값 수신:", lightValue);
-      return res.status(400).send("Invalid or missing light value");
-    }
-
-    // Sensor 모델을 사용하여 새로운 문서(Document) 객체를 생성합니다.
-    // 이 문서는 sensor.js에 정의된 'luxMeasurements' 컬렉션에 저장됩니다.
-    try{
-      const newSensor = new Sensor({
-        lux: Number(lightValue), // 문자열을 숫자로 변환하여 'lux' 필드에 저장합니다.
-        timestamp: new Date(),   // 현재 시각을 'timestamp' 필드에 저장합니다.
-      });
-      await newSensor.save();
-      console.log("저장된 값:", lightValue);
-      res.json({ ok: "get", value: lightValue });
-    }catch (err) {
-      console.error("저장 실패:", err);
-      res.status(500).send("서버 오류");
-    }
-    // 생성된 문서를 MongoDB에 저장합니다.
-
-    // 저장 성공 시 콘솔에 로그를 출력하고 NodeMCU에 성공 응답을 보냅니다.
-    console.log("✅  컬렉션에 센서 값 저장 성공:", newSensor);
-    res.status(200).send(`Lux value ${lightValue} saved successfully!`);
-
+    console.log("✅ 조도 이력 조회 성공");
+    res.status(200).json(data);
   } catch (error) {
-    // 데이터베이스 저장 중 오류 발생 시 콘솔에 에러 로그를 출력하고 500 Internal Server Error 응답을 보냅니다.
-    console.error("❌ MongoDB에 lux 값 저장 중 오류 발생:", error);
-    res.status(500).send("서버 오류가 발생하여 데이터를 저장할 수 없습니다.");
+    console.error("❌ 조도 이력 조회 실패:", error);
+    res.status(500).send("조도 데이터를 불러오는 데 실패했습니다.");
   }
 });
+
+
+router.get("/get-sensor", async (req, res) => {
+  try {
+    const lightValue = parseInt(req.query.myvalue);
+
+    if (!lightValue || isNaN(lightValue)) {
+      console.log("❌ 잘못된 센서값:", lightValue);
+      return res.status(400).send("Invalid light value");
+    }
+
+    const now = new Date();
+
+    // 저장
+    const newSensor = new liveSensor({
+      lux: lightValue,
+      timestamp: now,
+    });
+
+    await newSensor.save();
+    console.log("✅ 저장 성공:", newSensor);
+    res.status(200).send(`Saved lux value ${lightValue} at ${now.toISOString()}`);
+
+  } catch (error) {
+    console.error("❌ 저장 중 오류:", error);
+    res.status(500).send("Internal server error");
+  }
+});
+
 
 // 2. MongoDB에 저장된 모든 센서 데이터를 조회하여 API로 제공하는 GET 엔드포인트
 // 이 API를 호출하면 'luxMeasurements' 컬렉션의 모든 데이터가 JSON 형태로 반환됩니다.
@@ -57,7 +132,7 @@ router.get("/get-sensor", async (req, res) => {
 router.get("/all-sensor-data", async (req, res) => {
   try {
     // Sensor 모델(luxMeasurements 컬렉션)에서 모든 문서를 조회하고 'timestamp' 필드를 기준으로 최신순으로 정렬합니다.
-    const allSensorData = await Sensor.find().sort({ timestamp: -1 });
+    const allSensorData = await preSensor.find().sort({ timestamp: -1 });
     
     console.log("✅ MongoDB에서 모든 센서 데이터 조회 성공.");
     // 조회된 데이터를 JSON 형식으로 클라이언트에게 응답합니다.

@@ -12,7 +12,7 @@ const cors = require('cors'); // CORS 미들웨어 임포트
 // --- 앱 설정 ---
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade'); // 뷰 엔진 설정 (Jade 사용)
-app.set('port', process.env.PORT || 3001); // 환경 변수 PORT 사용 또는 기본값 3000
+app.set('port', process.env.PORT || 3000); // 환경 변수 PORT 사용 또는 기본값 3000
 
 // --- 전역 미들웨어 설정 (모든 라우트보다 먼저 적용) ---
 app.use(morgan('dev')); // HTTP 요청 로깅 (개발용)

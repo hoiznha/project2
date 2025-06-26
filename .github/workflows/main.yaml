@@ -9,7 +9,7 @@ env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-  APP_DOCKER_IMAGE_NAME: jiooh/restful_app
+  APP_DOCKER_IMAGE_NAME: jiooh/nice_buoy
   AWS_REGION: ap-northeast-2
   EC2_HOST: ${{ secrets.HOST }}
   EC2_USERNAME: ${{ secrets.USERNAME }}
@@ -76,15 +76,15 @@ jobs:
 
             echo "--- Cleaning up unused Docker images ---"
             docker system prune -f
-      - name: Deploy to Kubernetes via EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.EC2_HOST }}
-          username: ${{ env.EC2_USERNAME }}
-          key: ${{ env.EC2_KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            echo "--- Pulling latest image in Kubernetes Deployment ---"
+      # - name: Deploy to Kubernetes
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ env.EC2_HOST }}
+      #     username: ${{ env.EC2_USERNAME }}
+      #     key: ${{ env.EC2_KEY }}
+      #     port: ${{ secrets.PORT }}
+          # script: |
+            # echo "--- Pulling latest image in Kubernetes Deployment ---"
 
             # 1. 이미지 태그  업데이트 (선택)
             # 또는 deployment.yaml에 imagePullPolicy: Always 설정

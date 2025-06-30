@@ -87,17 +87,17 @@ const liveSensor = require("../models/liveSensor");
 router.get("/lux-history", async (req, res) => {
   try {
     // liveSensor 모델에서 데이터 전체 조회, 최신순 정렬
-    const data = await liveSensor.find().sort({ timestamp: -1 });
+    const converted = await liveSensor.find().sort({ timestamp: -1 });
 
     console.log("✅ 조도 이력 조회 성공");
-    res.status(200).json(data);
+    res.status(200).json(converted);
   } catch (error) {
     console.error("❌ 조도 이력 조회 실패:", error);
     res.status(500).send("조도 데이터를 불러오는 데 실패했습니다.");
   }
 });
 
-
+// NodeMCU에서 서버로 값을 전송받고, mongoDB에 값을 저장.
 router.get("/get-sensor", async (req, res) => {
   try {
     const lightValue = parseInt(req.query.myvalue);
@@ -107,17 +107,18 @@ router.get("/get-sensor", async (req, res) => {
       return res.status(400).send("Invalid light value");
     }
 
-    const now = new Date();
+    const nowUTC = new Date();
+    const nowKST = new Date(nowUTC.getTime() + 9 * 60 * 60 * 1000); // UTC+9
 
     // 저장
     const newSensor = new liveSensor({
       lux: lightValue,
-      timestamp: now,
+      timestamp: nowKST,
     });
 
     await newSensor.save();
     console.log("✅ 저장 성공:", newSensor);
-    res.status(200).send(`Saved lux value ${lightValue} at ${now.toISOString()}`);
+    res.status(200).send(`Saved lux value ${lightValue} at ${nowKST.toISOString()}`);
 
   } catch (error) {
     console.error("❌ 저장 중 오류:", error);

@@ -26,15 +26,16 @@ from langchain.chains import LLMChain
 prompt = PromptTemplate(
     input_variables = ["data"],
     template = """ 
-You are a weather and environmental data expert.  
-Using your knowledge of historical environmental patterns and publicly available datasets (such as multi-year light intensity data from meteorological or scientific institutions),  
-please analyze the following 1-week light intensity (lux) data measured hourly and forecast tomorrow’s hourly lux values.
+You are a weather and environmental data expert, specialized in analyzing observed measurement data patterns.
+
+Your primary task is to thoroughly analyze the patterns (daily/hourly variations, min/max values, average trends, etc.) within the provided 1-week hourly average light intensity (lux) data. This provided data should be used as the most crucial basis for your predictions.
+
+You may use your general knowledge of typical seasonal and time patterns observed in June over the past five years (e.g., sunrise/sunset times, midday peak, nighttime minimum) as a secondary reference only. Do not attempt to access external data or run complex statistical models.
 
 Here is the 1-week sensor data (hourly average values for each day):
 
 {data}
-
-Considering the typical seasonal and time patterns observed in June over the past five years, please predict the lighting data for the week beginning June 20 in format by date and time.
+Considering the patterns from the 1-week data provided above, combined with general June sunlight characteristics (e.g., sunrise around 05:00-06:00 KST, sunset around 19:30-20:00 KST, peak around 12:00-14:00 KST), please strictly generate the hourly light intensity (lux) predictions for 7 days starting from June 20, 2025, in format by date and time.
 """)
 
 chain = LLMChain(

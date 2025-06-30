@@ -24,17 +24,23 @@ spec:
       volumes:
         - name: mongo-volume
           emptyDir: {}  # 실제 운영이라면 PVC(PersistentVolumeClaim)로 교체
+      # 메모리 부족이어서 pedning 상태일 수 있으므로 resource 제한줘보기
 #mongo-service.yaml
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: mongo-service
+  labels: 
+    app: mongo-service
 spec:
-  type: ClusterIP
+  type: ClusterIP #외부 접근 허용 x
   selector:
     app: mongo
   ports:
     - protocol: TCP
+      # nodePort: 30800 #outter port
       port: 27017
       targetPort: 27017
+  # externalIPs:
+  #   - 13.125.182.26

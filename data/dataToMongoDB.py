@@ -2,8 +2,8 @@ import pandas as pd
 from pymongo import MongoClient
 
 # 1. CSV 파일 불러오기
-df = pd.read_csv('lux_2025_06_20_to_30.csv')  # 경로 조정 필요
-# df = pd.read_csv('lux_2025_06_11_to_17.csv')  # 경로 조정 필요
+# df = pd.read_csv('lux_2025_06_20_to_30.csv')  # 경로 조정 필요
+df = pd.read_csv('lux_2025_06_22_to_30.csv')  # 경로 조정 필요
 
 # 2. MongoDB 연결 (로컬 )
 client = MongoClient('mongodb://13.125.182.26:27017/')
